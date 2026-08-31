@@ -1,0 +1,32 @@
+pkgname=aurorachat
+pkgver=0.r0.g0000000
+pkgrel=1
+pkgdesc="AuroraChat Unix, a C99 port for POSIX systems"
+arch=('x86_64')
+url="https://github.com/Unitendo/aurorachat-unix"
+license=('GPL-3.0-only')
+makedepends=('git')
+
+source=("git+https://github.com/Unitendo/aurorachat-unix.git")
+sha256sums=('SKIP')
+
+pkgver() {
+    cd "$srcdir/aurorachat-unix"
+
+    printf "0.r%s.g%s" \
+        "$(git rev-list --count HEAD)" \
+        "$(git rev-parse --short HEAD)"
+}
+
+build() {
+    cd "$srcdir/aurorachat-unix"
+
+    mkdir -p bin
+    make
+}
+
+package() {
+    cd "$srcdir/aurorachat-unix"
+
+    install -Dm755 bin/aurorachat "$pkgdir/usr/bin/aurorachat"
+}
