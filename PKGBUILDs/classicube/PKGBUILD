@@ -6,7 +6,7 @@ arch=('x86_64')
 url="https://github.com/ClassiCube/ClassiCube"
 license=('BSD-3-Clause')
 depends=('sdl2')
-makedepends=('git')
+makedepends=('git' 'libxi')
 
 source=("git+https://github.com/ClassiCube/ClassiCube.git")
 sha256sums=('SKIP')
