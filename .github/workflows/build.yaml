@@ -81,12 +81,12 @@ jobs:
 
           cd x86_64
 
-          repo-add myrepo.db.tar.gz *.pkg.tar.zst
+          repo-add venrepo.db.tar.gz *.pkg.tar.zst
 
           # repo-add creates symlinks; replace them with real files
-          rm -f myrepo.db myrepo.files
-          cp myrepo.db.tar.gz myrepo.db
-          cp myrepo.files.tar.gz myrepo.files
+          rm -f venrepo.db venrepo.files
+          cp venrepo.db.tar.gz venrepo.db
+          cp venrepo.files.tar.gz venrepo.files
 
       - name: Push generated repository
         run: |
