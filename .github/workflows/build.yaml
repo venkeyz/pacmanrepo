@@ -50,6 +50,9 @@ jobs:
 
             cd "$package_dir"
 
+            rm -rf src pkg *.pkg.tar.* \
+              ClassiCube
+
             sudo -u builder makepkg \
               --syncdeps \
               --noconfirm \
