@@ -1,0 +1,89 @@
+name: Build pacman repository
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    container:
+      image: archlinux:latest
+
+    steps:
+      - name: Install dependencies
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm git base-devel sudo
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create build user
+        run: |
+          useradd --create-home builder
+          chown -R builder:builder "$GITHUB_WORKSPACE"
+
+      - name: Build all PKGBUILDs
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/packages"
+
+          find "$GITHUB_WORKSPACE/PKGBUILDs" \
+            -mindepth 2 \
+            -maxdepth 2 \
+            -type f \
+            -name PKGBUILD \
+            -print0 |
+          while IFS= read -r -d '' pkgbuild; do
+            package_dir="$(dirname "$pkgbuild")"
+
+            echo "::group::Building $package_dir"
+
+            cd "$package_dir"
+
+            sudo -u builder makepkg \
+              --syncdeps \
+              --noconfirm \
+              --cleanbuild \
+              --clean
+
+            find "$package_dir" \
+              -maxdepth 1 \
+              -type f \
+              -name '*.pkg.tar.zst' \
+              -exec cp {} "$GITHUB_WORKSPACE/packages/" \;
+
+            echo "::endgroup::"
+          done
+
+      - name: Create pacman repository
+        run: |
+          rm -rf x86_64
+          mkdir -p x86_64
+
+          cp packages/*.pkg.tar.zst x86_64/
+
+          cd x86_64
+          repo-add myrepo.db.tar.gz *.pkg.tar.zst
+
+      - name: Push generated repository
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add x86_64/
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git commit -m "Update pacman repository"
+          git push
