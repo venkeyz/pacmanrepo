@@ -1,0 +1,15 @@
+pkgname=r2modman
+pkgver=3.2.19
+pkgrel=1
+pkgdesc="A mod manager for Thunderstore modpacks"
+arch=('x86_64')
+url="https://github.com/ebkr/r2modmanPlus"
+license=('MIT')
+source=("https://github.com/ebkr/r2modmanPlus/releases/download/v${pkgver}/r2modman-${pkgver}.pacman")
+sha256sums=('SKIP')
+
+package() {
+    mkdir -p "$srcdir/extracted"
+    bsdtar -xf "r2modman-${pkgver}.pacman" -C "$srcdir/extracted"
+    cp -a "$srcdir/extracted/usr/." "$pkgdir/usr/"
+}
