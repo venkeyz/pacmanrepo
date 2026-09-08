@@ -11,5 +11,7 @@ sha256sums=('SKIP')
 package() {
     mkdir -p "$srcdir/extracted"
     bsdtar -xf "r2modman-${pkgver}.pacman" -C "$srcdir/extracted"
-    cp -a "$srcdir/extracted/usr/." "$pkgdir/usr/"
+
+    cp -a "$srcdir/extracted/opt" "$pkgdir/"
+    cp -a "$srcdir/extracted/usr" "$pkgdir/"
 }
